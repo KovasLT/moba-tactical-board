@@ -3,3 +3,5 @@ This is the community tool to help Honor of Kings community teams to prepare tac
 
 More information is available on our discord page:
 https://discord.gg/DfW5kPKsv5
+
+Counters and Synergies are gathered from publicly available data of 2025-07 -- 2026-07 pro teams matches. Some deviation might appear do to patches. At that time Pei, Chicha and Guan Yu were dominating in the META.

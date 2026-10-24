@@ -36,7 +36,6 @@ button,select,input,textarea{font-family:inherit}
 .btn-sky{background:#0ea5e9;color:#fff}
 .btn-ghost{background:rgba(255,255,255,.06);color:#cbd5e1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 
-/* Timeline / States Bar */
 .timeline{display:flex;align-items:center;gap:8px;background:var(--panel);border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px var(--ring);margin-bottom:12px;overflow-x:auto}
 .state-tab{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);color:#cbd5e1;border:0;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
 .state-tab:hover{background:rgba(255,255,255,.1)}
@@ -83,11 +82,13 @@ button,select,input,textarea{font-family:inherit}
 .counter.red{color:#fca5a5}
 .hint{font-size:10px;color:#64748b;line-height:1.55;margin:8px 0 0}
 .hint b{color:#e2e8f0}
+.hint code{color:#a5b4fc}
 
 .board{position:relative;background:#0f172a;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--ring);min-height:420px}
 .board.mode-arrow,.board.mode-path,.board.mode-circle,.board.mode-text{touch-action:none;cursor:crosshair}
 .board.mode-note{cursor:copy}
 .board.mode-erase{cursor:not-allowed}
+.board.mode-compare{cursor:pointer}
 #mapImg{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none}
 #shapesSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 #shapesSvg .hit{pointer-events:all;cursor:pointer}
@@ -102,8 +103,22 @@ button,select,input,textarea{font-family:inherit}
 .token-label{margin-top:4px;background:rgba(0,0,0,.75);padding:1px 6px;border-radius:4px;font-size:10px;color:#fff;white-space:nowrap}
 .token.team-blue .token-label{background:rgba(59,130,246,.85)}
 .token.team-red .token-label{background:rgba(239,68,68,.85)}
+.board.mode-compare .token{cursor:pointer}
+.token.compare-sel .token-avatar{box-shadow:0 0 0 3px #fbbf24,0 0 0 7px rgba(251,191,36,.28),0 4px 8px rgba(0,0,0,.45) !important}
 
-/* Sticky Notes */
+.compare-note{
+  position:absolute;transform:translate(-50%,-50%);z-index:55;pointer-events:none;
+  background:rgba(15,23,42,.94);border-radius:10px;padding:7px 12px;text-align:center;
+  box-shadow:0 10px 24px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.1);
+  border-top:2px solid #64748b;
+  font-size:11px;color:#e2e8f0;white-space:nowrap;display:none;
+}
+.compare-note.show{display:block}
+.compare-note .cn-badge{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.compare-note .cn-names{font-size:11px;color:#cbd5e1;margin-bottom:1px;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.compare-note .cn-rate{font-size:19px;font-weight:800;line-height:1.15}
+.compare-note .cn-meta{font-size:9px;color:#94a3b8;margin-top:1px}
+
 .sticky{position:absolute;width:170px;min-height:100px;padding:22px 8px 8px;border-radius:4px;box-shadow:0 8px 16px rgba(0,0,0,.35),inset 0 -1px 0 rgba(0,0,0,.06);pointer-events:auto;touch-action:none;background:#fde68a;color:#1f2937;cursor:grab;z-index:20}
 .sticky.dragging{cursor:grabbing;filter:drop-shadow(0 12px 20px rgba(0,0,0,.55));z-index:60}
 .sticky-pin{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:12px;height:12px;background:radial-gradient(circle at 30% 30%,#f87171,#b91c1c);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.4)}
@@ -116,7 +131,6 @@ button,select,input,textarea{font-family:inherit}
 .sticky-body{width:100%;background:transparent;border:0;outline:none;resize:none;font-size:12px;color:#1f2937;line-height:1.4;cursor:text}
 .sticky-body::placeholder{color:rgba(0,0,0,.35)}
 
-/* Text Boxes (auto-fit width & height, rotate) */
 .text-box{position:absolute;pointer-events:auto;touch-action:none;background:rgba(0,0,0,0.3);border:1px dashed rgba(255,255,255,0.3);border-radius:4px;padding:4px 6px;color:#fff;width:max-content;max-width:360px;transform-origin:center center;z-index:30;cursor:grab}
 .text-box:hover{border-color:rgba(255,255,255,0.6)}
 .text-box.editing{cursor:default;border-color:var(--accent);background:rgba(0,0,0,0.6);z-index:45}
@@ -127,7 +141,6 @@ button,select,input,textarea{font-family:inherit}
 .text-box:hover .handle,.text-box.editing .handle{display:block}
 .text-box .handle.rotate{top:-14px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:grab}
 
-/* Text Box Close (floating outside) */
 .text-box-close{position:absolute;top:-10px;right:-10px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;border:2px solid #0f172a;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:12px;line-height:1;z-index:40}
 .text-box:hover .text-box-close,.text-box.editing .text-box-close{display:flex}
 
@@ -170,7 +183,6 @@ button,select,input,textarea{font-family:inherit}
     </div>
   </header>
 
-  <!-- Timeline / States -->
   <div class="timeline" id="timelineBar"></div>
 
   <div class="toolbar">
@@ -180,12 +192,12 @@ button,select,input,textarea{font-family:inherit}
     <button class="mode-btn" data-mode="circle"><span class="icon">◯</span>Circle</button>
     <button class="mode-btn" data-mode="note"><span class="icon">✎</span>Sticky Note</button>
     <button class="mode-btn" data-mode="text"><span class="icon">T</span>Text Box</button>
+    <button class="mode-btn" data-mode="compare"><span class="icon">⇄</span>Compare</button>
     <button class="mode-btn" data-mode="erase"><span class="icon">✕</span>Erase</button>
     <div class="divider"></div>
     <div class="swatches" id="swatches"></div>
     <div class="spacer"></div>
 
-    <!-- State Navigation Buttons -->
     <div class="state-nav" style="display:flex;gap:4px;align-items:center;margin-right:8px">
       <button id="prevStateBtn" class="mode-btn" title="Previous State" style="padding:5px 8px;">&lt;</button>
       <button id="nextStateBtn" class="mode-btn" title="Next State" style="padding:5px 8px;">&gt;</button>
@@ -216,6 +228,13 @@ button,select,input,textarea{font-family:inherit}
       </div>
 
       <div class="card">
+        <h3>Matchup data</h3>
+        <div id="matchupStatus" class="hint" style="margin:0">Loading…</div>
+        <button id="matchupLoadBtn" class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:12px;padding:6px 10px">Load CSV files</button>
+        <input id="matchupFiles" type="file" accept=".csv,text/csv" multiple hidden />
+      </div>
+
+      <div class="card">
         <h3>How to use</h3>
         <p class="hint">
           <b>Move</b> – drag tokens, notes, text.<br>
@@ -224,6 +243,7 @@ button,select,input,textarea{font-family:inherit}
           <b>Circle</b> – gather spot / area.<br>
           <b>Sticky Note</b> – click map to drop one.<br>
           <b>Text Box</b> – transparent note that grows with its text. Double click to edit.<br>
+          <b>Compare</b> – click two heroes to see their counter / synergy win rate.<br>
           <b>Erase</b> – click any shape, token or note.
         </p>
       </div>
@@ -240,6 +260,7 @@ button,select,input,textarea{font-family:inherit}
       <div id="tokensLayer"></div>
       <div id="notesLayer"></div>
       <div id="textLayer"></div>
+      <div id="compareNote" class="compare-note"></div>
     </main>
   </div>
 </div>
@@ -285,6 +306,9 @@ button,select,input,textarea{font-family:inherit}
 const STORAGE_KEY = 'corener-tactics-assistant-v2';
 const ARROW_COLORS = ['#f43f5e','#fb923c','#facc15','#22c55e','#38bdf8','#a855f7','#f8fafc'];
 const STICKY_COLORS = ['#fde68a','#fbcfe8','#bfdbfe','#bbf7d0','#fed7aa','#ddd6fe'];
+const COLOR_COUNTER = '#ef4444';
+const COLOR_SYNERGY = '#22c55e';
+const COLOR_NODATA  = '#64748b';
 
 /* ============================================================
    Data (from data.js) + fallbacks
@@ -315,6 +339,122 @@ const clamp01 = n => Math.min(1, Math.max(0, n));
 const pct = n => (n * 100).toFixed(3) + '%';
 const colorToMarkerId = c => 'm-' + c.replace(/[^a-zA-Z0-9]/g, '');
 
+const normKey = s => String(s || '')
+  .toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, ' ')
+  .trim();
+
+function nameKeys(name) {
+  const raw = String(name || '');
+  const keys = [];
+  const push = s => { const k = normKey(s); if (k && !keys.includes(k)) keys.push(k); };
+  push(raw);
+  push(raw.replace(/\([^)]*\)/g, ' '));
+  const parens = raw.match(/\(([^)]*)\)/g) || [];
+  parens.forEach(p => push(p.replace(/[()]/g, ' ')));
+  return keys;
+}
+
+/* ============================================================
+   Matchup data (counters / synergies)
+   ============================================================ */
+const matchup = {
+  counters: new Map(),
+  synergies: new Map(),
+  names: new Set(),
+};
+const heroKeyCache = new Map();
+let compareVisual = null;
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = String(text).split(/\r?\n/);
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cells = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQ) {
+        if (ch === '"') {
+          if (line[i + 1] === '"') { cur += '"'; i++; }
+          else inQ = false;
+        } else cur += ch;
+      } else {
+        if (ch === '"') inQ = true;
+        else if (ch === ',') { cells.push(cur); cur = ''; }
+        else cur += ch;
+      }
+    }
+    cells.push(cur);
+    rows.push(cells.map(c => c.trim()));
+  }
+  return rows;
+}
+
+function ingestCsv(text, type) {
+  const rows = parseCSV(text);
+  if (!rows.length) return 0;
+  const header = rows[0].map(h => normKey(h).replace(/ /g, '_'));
+  const idx = name => header.indexOf(name);
+
+  let iA = type === 'counter' ? idx('hero') : idx('hero_1');
+  let iB = type === 'counter' ? idx('opponent') : idx('hero_2');
+  if (iA < 0) iA = 0;
+  if (iB < 0) iB = 1;
+  let iM = idx('matches'); if (iM < 0) iM = 2;
+  let iW = idx('wins');    if (iW < 0) iW = 3;
+  let iR = idx('win_rate');if (iR < 0) iR = 4;
+
+  const map = type === 'counter' ? matchup.counters : matchup.synergies;
+  let count = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 2) continue;
+    const a = r[iA], b = r[iB];
+    if (!a || !b) continue;
+    const ka = normKey(a), kb = normKey(b);
+    if (!ka || !kb) continue;
+    const matches = parseInt(r[iM], 10) || 0;
+    const wins = parseInt(r[iW], 10) || 0;
+    let rate = parseFloat(r[iR]);
+    if (!isFinite(rate)) rate = matches ? wins / matches : 0;
+    map.set(ka + '|' + kb, { matches, wins, rate });
+    matchup.names.add(ka);
+    matchup.names.add(kb);
+    count++;
+  }
+  return count;
+}
+
+function detectCsvType(text) {
+  const first = (String(text).split(/\r?\n/, 1)[0] || '').toLowerCase();
+  if (first.includes('hero_1') || first.includes('hero_2')) return 'synergy';
+  if (first.includes('opponent')) return 'counter';
+  return null;
+}
+
+function heroLookupKey(hero) {
+  if (!hero) return '';
+  if (heroKeyCache.has(hero.id)) return heroKeyCache.get(hero.id);
+  const keys = nameKeys(hero.name);
+  let found = null;
+  for (const k of keys) { if (matchup.names.has(k)) { found = k; break; } }
+  if (!found) found = keys[0] || '';
+  heroKeyCache.set(hero.id, found);
+  return found;
+}
+
+function findPair(map, ka, kb) {
+  if (!ka || !kb) return null;
+  const f = map.get(ka + '|' + kb);
+  if (f) return { ...f, reversed: false };
+  const r = map.get(kb + '|' + ka);
+  if (r) return { ...r, reversed: true };
+  return null;
+}
+
 /* ============================================================
    State
    ============================================================ */
@@ -326,6 +466,7 @@ const state = {
   heroes: DATA.heroes.slice(),
   heroSearch: '',
   boards: {},
+  compare: { a: null, b: null },
 };
 
 function createEmptyState(name = 'State 1') {
@@ -336,7 +477,6 @@ function ensureBoard(mapId) {
   if (!state.boards[mapId]) {
     state.boards[mapId] = { states: [createEmptyState()], currentStateIndex: 0 };
   }
-  // Migration from v2 (without states)
   if (!state.boards[mapId].states) {
     const old = state.boards[mapId];
     state.boards[mapId] = {
@@ -413,6 +553,7 @@ const els = {
   tokens: document.getElementById('tokensLayer'),
   notes: document.getElementById('notesLayer'),
   textLayer: document.getElementById('textLayer'),
+  compareNote: document.getElementById('compareNote'),
   timelineBar: document.getElementById('timelineBar'),
   prevStateBtn: document.getElementById('prevStateBtn'),
   nextStateBtn: document.getElementById('nextStateBtn'),
@@ -423,6 +564,9 @@ const els = {
   teamToggle: document.getElementById('teamToggle'),
   blueCount: document.getElementById('blueCount'),
   redCount: document.getElementById('redCount'),
+  matchupStatus: document.getElementById('matchupStatus'),
+  matchupLoadBtn: document.getElementById('matchupLoadBtn'),
+  matchupFiles: document.getElementById('matchupFiles'),
   helperModal: document.getElementById('helperModal'),
   helperHeroFiles: document.getElementById('helperHeroFiles'),
   helperMapFiles: document.getElementById('helperMapFiles'),
@@ -534,7 +678,6 @@ function renderTimeline() {
   });
   els.timelineBar.appendChild(addBtn);
 
-  // Update Nav Buttons
   els.prevStateBtn.disabled = b.currentStateIndex === 0;
   els.nextStateBtn.disabled = b.currentStateIndex === b.states.length - 1;
 }
@@ -682,6 +825,10 @@ function renderTokens() {
         b.tokens = b.tokens.filter(x => x.id !== t.id);
         renderTokens(); scheduleSave(); return;
       }
+      if (state.mode === 'compare') {
+        selectTokenForCompare(t.id);
+        return;
+      }
       if (state.mode !== 'move') return;
       e.preventDefault();
       startDrag(e, t, el, 'token');
@@ -712,6 +859,7 @@ function renderTokens() {
     els.tokens.appendChild(el);
   }
   updateTeamCounts();
+  renderCompare();
 }
 
 function updateTeamCounts() {
@@ -724,7 +872,198 @@ function updateTeamCounts() {
 }
 
 /* ============================================================
-   Shapes (Arrows, Paths, Circles)
+   Compare tool
+   ============================================================ */
+function selectTokenForCompare(id) {
+  const b = board();
+  if (!b.tokens.some(t => t.id === id)) return;
+  const c = state.compare;
+  if (c.a === id) {
+    state.compare = { a: null, b: null };
+  } else if (!c.a) {
+    state.compare = { a: id, b: null };
+  } else if (c.b === id) {
+    state.compare = { a: c.a, b: null };
+  } else {
+    state.compare = { a: c.a, b: id };
+  }
+  renderCompare();
+}
+
+function clearCompare() {
+  if (!state.compare.a && !state.compare.b) return;
+  state.compare = { a: null, b: null };
+  renderCompare();
+}
+
+function computeCompare(ta, tb) {
+  const ha = heroById(ta.heroId);
+  const hb = heroById(tb.heroId);
+  const base = { aName: ha ? ha.name : '?', bName: hb ? hb.name : '?' };
+  if (!ha || !hb) return { ...base, type: 'none', matches: 0, rate: null };
+
+  const ka = heroLookupKey(ha);
+  const kb = heroLookupKey(hb);
+  const sameTeam = (ta.team || 'blue') === (tb.team || 'blue');
+
+  const ctr = findPair(matchup.counters, ka, kb);
+  const syn = findPair(matchup.synergies, ka, kb);
+
+  const ctrRes = ctr ? {
+    ...base, type: 'counter', matches: ctr.matches,
+    rate: ctr.reversed ? 1 - ctr.rate : ctr.rate,
+  } : null;
+
+  const synRes = syn ? {
+    ...base, type: 'synergy', matches: syn.matches, rate: syn.rate,
+  } : null;
+
+  const primary = sameTeam ? (synRes || ctrRes) : (ctrRes || synRes);
+  return primary || { ...base, type: 'none', matches: 0, rate: null };
+}
+
+function renderCompare() {
+  const b = board();
+  const c = state.compare;
+
+  let ta = c.a ? b.tokens.find(t => t.id === c.a) : null;
+  let tb = c.b ? b.tokens.find(t => t.id === c.b) : null;
+  if (!ta) { c.a = null; ta = null; }
+  if (!tb) { c.b = null; tb = null; }
+
+  compareVisual = ta
+    ? { ta, tb, info: tb ? computeCompare(ta, tb) : null }
+    : null;
+
+  els.tokens.querySelectorAll('.token').forEach(el => {
+    const id = el.dataset.id;
+    el.classList.toggle('compare-sel', (!!ta && id === ta.id) || (!!tb && id === tb.id));
+  });
+
+  renderCompareNote();
+  renderShapes();
+}
+
+function renderCompareNote() {
+  const note = els.compareNote;
+  const v = compareVisual;
+  if (!v || !v.ta) { note.classList.remove('show'); return; }
+
+  let color = COLOR_NODATA;
+  let badge = 'No data';
+  let names = '';
+  let rateTxt = '—';
+  let meta = '';
+
+  if (!v.tb) {
+    const h = heroById(v.ta.heroId);
+    names = h ? h.name : 'Hero';
+    badge = 'Compare';
+    rateTxt = '…';
+    meta = 'Click a second hero';
+  } else {
+    const info = v.info;
+    names = `${info.aName} ${info.type === 'synergy' ? '+' : 'vs'} ${info.bName}`;
+    if (info.type === 'counter') { color = COLOR_COUNTER; badge = '⚔ Counter'; }
+    else if (info.type === 'synergy') { color = COLOR_SYNERGY; badge = '🤝 Synergy'; }
+    else { color = COLOR_NODATA; badge = 'No data'; }
+
+    if (info.rate != null) {
+      rateTxt = (info.rate * 100).toFixed(1) + '%';
+      meta = info.matches.toLocaleString() + ' matches';
+    } else {
+      rateTxt = '—';
+      meta = matchup.names.size ? 'No recorded pair' : 'Matchup data not loaded';
+    }
+  }
+
+  note.innerHTML = '';
+  const bd = document.createElement('div');
+  bd.className = 'cn-badge'; bd.textContent = badge; bd.style.color = color;
+  const nm = document.createElement('div');
+  nm.className = 'cn-names'; nm.textContent = names;
+  const rt = document.createElement('div');
+  rt.className = 'cn-rate'; rt.textContent = rateTxt; rt.style.color = color;
+  note.append(bd, nm, rt);
+  if (meta) {
+    const mt = document.createElement('div');
+    mt.className = 'cn-meta'; mt.textContent = meta;
+    note.appendChild(mt);
+  }
+
+  note.style.borderTopColor = color;
+  const x = v.tb ? (v.ta.x + v.tb.x) / 2 : v.ta.x;
+  const y = v.tb ? (v.ta.y + v.tb.y) / 2 : v.ta.y;
+  note.style.left = pct(x);
+  note.style.top = pct(y);
+  note.style.transform = v.tb ? 'translate(-50%,-140%)' : 'translate(-50%,-160%)';
+  note.classList.add('show');
+}
+
+/* ---- CSV loading ---- */
+function updateMatchupStatus(loading) {
+  const el = els.matchupStatus;
+  if (!el) return;
+  if (loading) { el.innerHTML = 'Loading matchup data…'; return; }
+  const c = matchup.counters.size;
+  const s = matchup.synergies.size;
+  if (!c && !s) {
+    el.innerHTML = 'No matchup data loaded. Keep <code>hok_hero_counters.csv</code> and ' +
+                   '<code>hok_hero_synergies.csv</code> next to this file, or load them manually.';
+  } else {
+    el.innerHTML = `⚔ ${c.toLocaleString()} counter pairs · 🤝 ${s.toLocaleString()} synergy pairs`;
+  }
+}
+
+async function handleCsvFiles(files) {
+  let loaded = 0;
+  for (const f of files) {
+    let text;
+    try { text = await f.text(); } catch { continue; }
+    let type = detectCsvType(text);
+    if (!type) {
+      const n = f.name.toLowerCase();
+      if (n.includes('synerg')) type = 'synergy';
+      else if (n.includes('counter')) type = 'counter';
+    }
+    if (!type) continue;
+    ingestCsv(text, type);
+    loaded++;
+  }
+  heroKeyCache.clear();
+  updateMatchupStatus();
+  renderCompare();
+  if (loaded) toast('Matchup data loaded');
+  else toast('No valid CSV found');
+}
+
+async function autoLoadMatchups() {
+  updateMatchupStatus(true);
+  const sources = [
+    { url: 'hok_hero_counters.csv', type: 'counter' },
+    { url: 'hok_hero_synergies.csv', type: 'synergy' },
+  ];
+  for (const src of sources) {
+    try {
+      const res = await fetch(src.url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(res.status);
+      ingestCsv(await res.text(), src.type);
+    } catch (e) { /* file:// or missing — user can load manually */ }
+  }
+  heroKeyCache.clear();
+  updateMatchupStatus();
+  renderCompare();
+}
+
+els.matchupLoadBtn.addEventListener('click', () => els.matchupFiles.click());
+els.matchupFiles.addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  handleCsvFiles(files);
+});
+
+/* ============================================================
+   Shapes (Arrows, Paths, Circles) + Compare connector
    ============================================================ */
 let draftArrow = null;
 let draftPath = null;
@@ -790,6 +1129,16 @@ function renderShapes() {
               `x2="${pct(a.x2)}" y2="${pct(a.y2)}" stroke="transparent" stroke-width="18" ` +
               `stroke-linecap="round" class="hit"/>`;
     }
+  }
+
+  if (compareVisual && compareVisual.ta && compareVisual.tb) {
+    const { ta, tb, info } = compareVisual;
+    const col = info && info.type === 'counter' ? COLOR_COUNTER
+              : info && info.type === 'synergy' ? COLOR_SYNERGY
+              : COLOR_NODATA;
+    html += `<line x1="${pct(ta.x)}" y1="${pct(ta.y)}" x2="${pct(tb.x)}" y2="${pct(tb.y)}" ` +
+            `stroke="${col}" stroke-width="2.5" stroke-linecap="round" ` +
+            `stroke-dasharray="9 7" opacity="0.95"/>`;
   }
 
   els.svg.innerHTML = html;
@@ -934,7 +1283,7 @@ function renderTextBoxes(focusId = null) {
         return;
       }
       if (state.mode !== 'move') return;
-      if (el.classList.contains('editing')) return;   // let the caret work
+      if (el.classList.contains('editing')) return;
       if (e.target.closest('.handle')) return;
       e.stopPropagation(); e.preventDefault();
       startDrag(e, t, el, 'text');
@@ -956,17 +1305,13 @@ function renderTextBoxes(focusId = null) {
     });
     el.appendChild(close);
 
-    // Auto-sizing content: the box hugs the text (width:max-content + pre-wrap)
     const content = document.createElement('div');
     content.className = 'text-box-content';
     content.dataset.placeholder = 'Text…';
     content.textContent = t.text || '';
     content.setAttribute('contenteditable', 'false');
 
-    content.addEventListener('input', () => {
-      t.text = content.innerText;
-      scheduleSave();
-    });
+    content.addEventListener('input', () => { t.text = content.innerText; scheduleSave(); });
     content.addEventListener('blur', () => {
       t.text = content.innerText;
       exitTextBoxEditing(el);
@@ -1087,6 +1432,12 @@ window.addEventListener('pointercancel', () => {
 
 els.board.addEventListener('pointerdown', e => {
   if (e.target.closest('.token, .sticky, .text-box, .hit')) return;
+
+  if (state.mode === 'compare') {
+    if (state.compare.a) clearCompare();
+    return;
+  }
+
   e.preventDefault();
   const p = boardPos(e);
   const b = board();
@@ -1140,7 +1491,10 @@ function setMode(m) {
     btn.classList.toggle('active', btn.dataset.mode === m)
   );
   els.board.className = 'board mode-' + m;
-  renderShapes();
+  if (m !== 'compare' && (state.compare.a || state.compare.b)) {
+    state.compare = { a: null, b: null };
+  }
+  renderCompare();
 }
 document.querySelectorAll('[data-mode]').forEach(btn =>
   btn.addEventListener('click', () => setMode(btn.dataset.mode))
@@ -1222,6 +1576,7 @@ function clearBoard() {
   if (!confirm('Clear the current state?')) return;
   const b = board();
   b.tokens = []; b.arrows = []; b.paths = []; b.circles = []; b.notes = []; b.textBoxes = [];
+  state.compare = { a: null, b: null };
   renderAllLayers();
   scheduleSave();
   toast('State cleared');
@@ -1330,6 +1685,8 @@ function init() {
   renderTimeline();
   renderAllLayers();
   setMode('move');
+  updateMatchupStatus();
+  autoLoadMatchups();   // tries to fetch the CSVs next to this file
 }
 init();
 </script>
