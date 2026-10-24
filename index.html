@@ -116,16 +116,16 @@ button,select,input,textarea{font-family:inherit}
 .sticky-body{width:100%;background:transparent;border:0;outline:none;resize:none;font-size:12px;color:#1f2937;line-height:1.4;cursor:text}
 .sticky-body::placeholder{color:rgba(0,0,0,.35)}
 
-/* Text Boxes */
-.text-box{position:absolute;pointer-events:auto;touch-action:none;background:rgba(0,0,0,0.3);border:1px dashed rgba(255,255,255,0.3);border-radius:4px;padding:4px;color:#fff;display:flex;flex-direction:column;transform-origin:center center;z-index:30;cursor:grab}
+/* Text Boxes (auto-fit width & height, rotate) */
+.text-box{position:absolute;pointer-events:auto;touch-action:none;background:rgba(0,0,0,0.3);border:1px dashed rgba(255,255,255,0.3);border-radius:4px;padding:4px 6px;color:#fff;width:max-content;max-width:360px;transform-origin:center center;z-index:30;cursor:grab}
 .text-box:hover{border-color:rgba(255,255,255,0.6)}
-.text-box.editing{cursor:default;border-color:var(--accent);background:rgba(0,0,0,0.6)}
-.text-box textarea{flex:1;width:100%;background:transparent;border:none;outline:none;resize:none;color:inherit;font-family:inherit;font-size:12px;line-height:1.4;overflow:hidden;pointer-events:none;text-shadow:0 1px 2px #000;min-height:20px}
-.text-box.editing textarea{pointer-events:auto;cursor:text}
+.text-box.editing{cursor:default;border-color:var(--accent);background:rgba(0,0,0,0.6);z-index:45}
+.text-box-content{outline:none;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.4;min-width:1.2em;min-height:1.4em;text-shadow:0 1px 2px #000;user-select:none;cursor:grab}
+.text-box-content:empty::before{content:attr(data-placeholder);color:rgba(255,255,255,.35)}
+.text-box.editing .text-box-content{user-select:text;cursor:text}
 .text-box .handle{position:absolute;display:none;background:#fff;border:1px solid #333;box-shadow:0 2px 4px rgba(0,0,0,0.5);z-index:10}
 .text-box:hover .handle,.text-box.editing .handle{display:block}
 .text-box .handle.rotate{top:-14px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:grab}
-.text-box .handle.resize{bottom:-5px;right:-5px;width:10px;height:10px;border-radius:2px;cursor:ew-resize}
 
 /* Text Box Close (floating outside) */
 .text-box-close{position:absolute;top:-10px;right:-10px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;border:2px solid #0f172a;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:12px;line-height:1;z-index:40}
@@ -223,7 +223,7 @@ button,select,input,textarea{font-family:inherit}
           <b>Path</b> – straight line (no head).<br>
           <b>Circle</b> – gather spot / area.<br>
           <b>Sticky Note</b> – click map to drop one.<br>
-          <b>Text Box</b> – transparent note. Double click to edit.<br>
+          <b>Text Box</b> – transparent note that grows with its text. Double click to edit.<br>
           <b>Erase</b> – click any shape, token or note.
         </p>
       </div>
@@ -890,8 +890,31 @@ function renderNotes(focusId = null) {
 }
 
 /* ============================================================
-   Text Boxes (Transparent, Resize, Rotate, Auto-Height)
+   Text Boxes — auto-fit width & height, rotate
    ============================================================ */
+function enterTextBoxEditing(el) {
+  const content = el.querySelector('.text-box-content');
+  if (!content) return;
+  el.classList.add('editing');
+  content.setAttribute('contenteditable', 'true');
+  content.focus();
+  const sel = window.getSelection();
+  if (sel) {
+    const r = document.createRange();
+    r.selectNodeContents(content);
+    r.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+}
+
+function exitTextBoxEditing(el) {
+  if (!el.classList.contains('editing')) return;
+  el.classList.remove('editing');
+  const content = el.querySelector('.text-box-content');
+  if (content) content.setAttribute('contenteditable', 'false');
+}
+
 function renderTextBoxes(focusId = null) {
   els.textLayer.innerHTML = '';
   const b = board();
@@ -901,7 +924,6 @@ function renderTextBoxes(focusId = null) {
     el.dataset.id = t.id;
     el.style.left = pct(t.x);
     el.style.top = pct(t.y);
-    el.style.width = t.w + 'px';
     el.style.transform = `translate(-50%, -50%) rotate(${t.rot || 0}deg)`;
 
     el.addEventListener('pointerdown', e => {
@@ -912,7 +934,8 @@ function renderTextBoxes(focusId = null) {
         return;
       }
       if (state.mode !== 'move') return;
-      if (e.target.closest('textarea') || e.target.closest('.handle')) return;
+      if (el.classList.contains('editing')) return;   // let the caret work
+      if (e.target.closest('.handle')) return;
       e.stopPropagation(); e.preventDefault();
       startDrag(e, t, el, 'text');
     });
@@ -920,8 +943,7 @@ function renderTextBoxes(focusId = null) {
     el.addEventListener('dblclick', e => {
       e.stopPropagation();
       if (state.mode !== 'move') return;
-      el.classList.add('editing');
-      el.querySelector('textarea').focus();
+      enterTextBoxEditing(el);
     });
 
     const close = document.createElement('button');
@@ -934,26 +956,28 @@ function renderTextBoxes(focusId = null) {
     });
     el.appendChild(close);
 
-    const ta = document.createElement('textarea');
-    ta.value = t.text || '';
-    ta.placeholder = 'Text…';
+    // Auto-sizing content: the box hugs the text (width:max-content + pre-wrap)
+    const content = document.createElement('div');
+    content.className = 'text-box-content';
+    content.dataset.placeholder = 'Text…';
+    content.textContent = t.text || '';
+    content.setAttribute('contenteditable', 'false');
 
-    // Auto-resize height based on text
-    const resizeTa = () => {
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
-    };
-
-    ta.addEventListener('input', () => {
-      t.text = ta.value;
-      resizeTa();
+    content.addEventListener('input', () => {
+      t.text = content.innerText;
       scheduleSave();
     });
-    ta.addEventListener('blur', () => el.classList.remove('editing'));
-    el.appendChild(ta);
-
-    // Initial height calculation
-    setTimeout(resizeTa, 0);
+    content.addEventListener('blur', () => {
+      t.text = content.innerText;
+      exitTextBoxEditing(el);
+      scheduleSave();
+    });
+    content.addEventListener('paste', e => {
+      e.preventDefault();
+      const txt = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, txt);
+    });
+    el.appendChild(content);
 
     const rotHandle = document.createElement('div');
     rotHandle.className = 'handle rotate';
@@ -978,39 +1002,14 @@ function renderTextBoxes(focusId = null) {
     });
     el.appendChild(rotHandle);
 
-    const resHandle = document.createElement('div');
-    resHandle.className = 'handle resize';
-    resHandle.addEventListener('pointerdown', e => {
-      e.stopPropagation(); e.preventDefault();
-      const startX = e.clientX;
-      const startW = t.w;
-
-      const onResize = ev => {
-        t.w = Math.max(60, startW + (ev.clientX - startX));
-        el.style.width = t.w + 'px';
-        resizeTa(); // Recalculate height in case wrapping changed
-      };
-      const onUp = () => {
-        window.removeEventListener('pointermove', onResize);
-        window.removeEventListener('pointerup', onUp);
-        scheduleSave();
-      };
-      window.addEventListener('pointermove', onResize);
-      window.addEventListener('pointerup', onUp);
-    });
-    el.appendChild(resHandle);
-
     els.textLayer.appendChild(el);
-    if (focusId === t.id) {
-      el.classList.add('editing');
-      setTimeout(() => ta.focus(), 0);
-    }
+    if (focusId === t.id) setTimeout(() => enterTextBoxEditing(el), 0);
   }
 }
 
 els.board.addEventListener('pointerdown', e => {
   if (!e.target.closest('.text-box')) {
-    els.textLayer.querySelectorAll('.text-box.editing').forEach(el => el.classList.remove('editing'));
+    els.textLayer.querySelectorAll('.text-box.editing').forEach(exitTextBoxEditing);
   }
 });
 
@@ -1112,7 +1111,7 @@ els.board.addEventListener('pointerdown', e => {
     scheduleSave();
   } else if (state.mode === 'text') {
     b.textBoxes.push({
-      id: uid(), x: p.x, y: p.y, text: '', w: 150, rot: 0
+      id: uid(), x: p.x, y: p.y, text: '', rot: 0
     });
     renderTextBoxes(b.textBoxes[b.textBoxes.length - 1].id);
     scheduleSave();
