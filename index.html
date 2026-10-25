@@ -925,30 +925,36 @@ function clearCompare() {
   renderCompare();
 }
 
+/**
+ * Returns comparison info for two tokens.
+ * No fallback: same-team pairs only look at synergies, opposing pairs only look at counters.
+ * When no matching record exists, returns { type: 'none', matches: 0, rate: null }.
+ */
 function computeCompare(ta, tb) {
   const ha = heroById(ta.heroId);
   const hb = heroById(tb.heroId);
   const base = { aName: ha ? ha.name : '?', bName: hb ? hb.name : '?' };
-  if (!ha || !hb) return { ...base, type: 'none', matches: 0, rate: null };
+  if (!ha || !hb) return { ...base, type: 'none', matches: 0, rate: null, sameTeam: false };
 
   const ka = heroLookupKey(ha);
   const kb = heroLookupKey(hb);
   const sameTeam = (ta.team || 'blue') === (tb.team || 'blue');
 
-  const ctr = findPair(matchup.counters, ka, kb);
-  const syn = findPair(matchup.synergies, ka, kb);
-
-  const ctrRes = ctr ? {
-    ...base, type: 'counter', matches: ctr.matches,
-    rate: ctr.reversed ? 1 - ctr.rate : ctr.rate,
-  } : null;
-
-  const synRes = syn ? {
-    ...base, type: 'synergy', matches: syn.matches, rate: syn.rate,
-  } : null;
-
-  const primary = sameTeam ? (synRes || ctrRes) : (ctrRes || synRes);
-  return primary || { ...base, type: 'none', matches: 0, rate: null };
+  if (sameTeam) {
+    const syn = findPair(matchup.synergies, ka, kb);
+    if (!syn) return { ...base, type: 'none', matches: 0, rate: null, sameTeam: true };
+    return { ...base, type: 'synergy', matches: syn.matches, rate: syn.rate, sameTeam: true };
+  } else {
+    const ctr = findPair(matchup.counters, ka, kb);
+    if (!ctr) return { ...base, type: 'none', matches: 0, rate: null, sameTeam: false };
+    return {
+      ...base,
+      type: 'counter',
+      matches: ctr.matches,
+      rate: ctr.reversed ? 1 - ctr.rate : ctr.rate,
+      sameTeam: false,
+    };
+  }
 }
 
 function renderCompare() {
@@ -992,17 +998,25 @@ function renderCompareNote() {
     meta = 'Click a second hero';
   } else {
     const info = v.info;
-    names = `${info.aName} ${info.type === 'synergy' ? '+' : 'vs'} ${info.bName}`;
-    if (info.type === 'counter') { color = COLOR_COUNTER; badge = '⚔ Counter'; }
+    const joiner = info.sameTeam ? '+' : 'vs';
+    names = `${info.aName} ${joiner} ${info.bName}`;
+
+    if (info.type === 'counter')      { color = COLOR_COUNTER; badge = '⚔ Counter'; }
     else if (info.type === 'synergy') { color = COLOR_SYNERGY; badge = '🤝 Synergy'; }
-    else { color = COLOR_NODATA; badge = 'No data'; }
+    else                              { color = COLOR_NODATA;  badge = 'No data'; }
 
     if (info.rate != null) {
       rateTxt = (info.rate * 100).toFixed(1) + '%';
       meta = info.matches.toLocaleString() + ' matches';
     } else {
       rateTxt = '—';
-      meta = matchup.names.size ? 'No recorded pair' : 'Matchup data not loaded';
+      if (!matchup.names.size) {
+        meta = 'Matchup data not loaded';
+      } else if (info.sameTeam) {
+        meta = 'No synergy data for this pair';
+      } else {
+        meta = 'No counter data for this pair';
+      }
     }
   }
 
@@ -1031,8 +1045,14 @@ function renderCompareNote() {
 
 /* ============================================================
    Win Prediction
-   ============================================================ */
+   ============================================================
+   For each hero pair, if there is no recorded data we substitute a neutral
+   50% win rate instead of skipping the pair. This keeps the average stable
+   when the dataset is sparse, and matches the "approximate missing pair
+   winrate as 50%" rule.
+*/
 function getTeamStats(teamTokens, enemyTokens) {
+  // Same-team synergies: every pair contributes; missing data → 0.5
   let sySum = 0, syCount = 0;
   for (let i = 0; i < teamTokens.length; i++) {
     for (let j = i + 1; j < teamTokens.length; j++) {
@@ -1042,14 +1062,13 @@ function getTeamStats(teamTokens, enemyTokens) {
       const k1 = heroLookupKey(h1);
       const k2 = heroLookupKey(h2);
       const syn = findPair(matchup.synergies, k1, k2);
-      if (syn) {
-        sySum += syn.rate;
-        syCount++;
-      }
+      sySum += syn ? syn.rate : 0.5;
+      syCount++;
     }
   }
   const avgSy = syCount > 0 ? sySum / syCount : 0.5;
 
+  // Cross-team counters: every pair contributes; missing data → 0.5
   let coSum = 0, coCount = 0;
   for (const t1 of teamTokens) {
     for (const t2 of enemyTokens) {
@@ -1059,11 +1078,9 @@ function getTeamStats(teamTokens, enemyTokens) {
       const k1 = heroLookupKey(h1);
       const k2 = heroLookupKey(h2);
       const ctr = findPair(matchup.counters, k1, k2);
-      if (ctr) {
-        const r = ctr.reversed ? 1 - ctr.rate : ctr.rate;
-        coSum += r;
-        coCount++;
-      }
+      const r = ctr ? (ctr.reversed ? 1 - ctr.rate : ctr.rate) : 0.5;
+      coSum += r;
+      coCount++;
     }
   }
   const avgCo = coCount > 0 ? coSum / coCount : 0.5;
