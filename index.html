@@ -31,6 +31,7 @@ button,select,input,textarea{font-family:inherit}
 .app-header p{margin:4px 0 0;color:var(--muted);font-size:13px}
 .header-actions{display:flex;gap:8px;flex-wrap:wrap}
 .btn{border:0;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s}
+a.btn{display:inline-flex;align-items:center;gap:4px;text-decoration:none;color:inherit}
 .btn:hover{filter:brightness(1.1)}
 .btn-emerald{background:#10b981;color:#fff}
 .btn-sky{background:#0ea5e9;color:#fff}
@@ -185,6 +186,10 @@ button,select,input,textarea{font-family:inherit}
       <p>Plan drafts, rotations, gathering spots & notes on any MOBA map. For more similar community tools visit Corener.eu website.</p>
     </div>
     <div class="header-actions">
+      <a href="https://github.com/KovasLT/moba-tactical-board/blob/main/readme.md"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="btn btn-ghost">📖 Documentation</a>
       <button id="helperBtn" class="btn btn-ghost">⚙️ Data file helper</button>
       <button id="saveBtn" class="btn btn-emerald">⬇ Save scheme</button>
       <button id="loadBtn" class="btn btn-sky">⬆ Load scheme</button>
@@ -262,6 +267,11 @@ button,select,input,textarea{font-family:inherit}
           <b>Text Box</b> – transparent note that grows with its text. Double click to edit.<br>
           <b>Compare</b> – click two heroes to see their counter / synergy win rate.<br>
           <b>Erase</b> – click any shape, token or note.
+        </p>
+        <p class="hint">
+          Full documentation: <a href="https://github.com/KovasLT/moba-tactical-board/blob/main/readme.md"
+            target="_blank" rel="noopener noreferrer"
+            style="color:#a5b4fc;text-decoration:underline">readme.md</a>
         </p>
       </div>
     </aside>
