@@ -84,6 +84,16 @@ button,select,input,textarea{font-family:inherit}
 .hint b{color:#e2e8f0}
 .hint code{color:#a5b4fc}
 
+/* Win Prediction */
+.win-prediction { display: flex; flex-direction: column; gap: 6px; }
+.wp-bar { height: 12px; border-radius: 6px; background: #1e293b; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+.wp-blue { background: var(--blue); height: 100%; transition: width 0.3s; }
+.wp-red { background: var(--red); height: 100%; transition: width 0.3s; }
+.wp-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-top: 2px; }
+.wp-label-blue { color: #93c5fd; }
+.wp-label-red { color: #fca5a5; }
+.wp-details { font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; margin-top: 2px; }
+
 .board{position:relative;background:#0f172a;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--ring);min-height:420px}
 .board.mode-arrow,.board.mode-path,.board.mode-circle,.board.mode-text{touch-action:none;cursor:crosshair}
 .board.mode-note{cursor:copy}
@@ -232,6 +242,13 @@ button,select,input,textarea{font-family:inherit}
         <div id="matchupStatus" class="hint" style="margin:0">Loading…</div>
         <button id="matchupLoadBtn" class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:12px;padding:6px 10px">Load CSV files</button>
         <input id="matchupFiles" type="file" accept=".csv,text/csv" multiple hidden />
+      </div>
+
+      <div class="card">
+        <h3>Win Prediction</h3>
+        <div id="winPrediction" class="win-prediction">
+          <div class="wp-empty" style="color:#64748b;font-size:11px;text-align:center;padding:4px 0">Add heroes to both teams.</div>
+        </div>
       </div>
 
       <div class="card">
@@ -554,6 +571,7 @@ const els = {
   notes: document.getElementById('notesLayer'),
   textLayer: document.getElementById('textLayer'),
   compareNote: document.getElementById('compareNote'),
+  winPrediction: document.getElementById('winPrediction'),
   timelineBar: document.getElementById('timelineBar'),
   prevStateBtn: document.getElementById('prevStateBtn'),
   nextStateBtn: document.getElementById('nextStateBtn'),
@@ -860,6 +878,7 @@ function renderTokens() {
   }
   updateTeamCounts();
   renderCompare();
+  updateWinChance();
 }
 
 function updateTeamCounts() {
@@ -1000,6 +1019,88 @@ function renderCompareNote() {
   note.classList.add('show');
 }
 
+/* ============================================================
+   Win Prediction
+   ============================================================ */
+function getTeamStats(teamTokens, enemyTokens) {
+  let sySum = 0, syCount = 0;
+  for (let i = 0; i < teamTokens.length; i++) {
+    for (let j = i + 1; j < teamTokens.length; j++) {
+      const h1 = heroById(teamTokens[i].heroId);
+      const h2 = heroById(teamTokens[j].heroId);
+      if (!h1 || !h2) continue;
+      const k1 = heroLookupKey(h1);
+      const k2 = heroLookupKey(h2);
+      const syn = findPair(matchup.synergies, k1, k2);
+      if (syn) {
+        sySum += syn.rate;
+        syCount++;
+      }
+    }
+  }
+  const avgSy = syCount > 0 ? sySum / syCount : 0.5;
+
+  let coSum = 0, coCount = 0;
+  for (const t1 of teamTokens) {
+    for (const t2 of enemyTokens) {
+      const h1 = heroById(t1.heroId);
+      const h2 = heroById(t2.heroId);
+      if (!h1 || !h2) continue;
+      const k1 = heroLookupKey(h1);
+      const k2 = heroLookupKey(h2);
+      const ctr = findPair(matchup.counters, k1, k2);
+      if (ctr) {
+        const r = ctr.reversed ? 1 - ctr.rate : ctr.rate;
+        coSum += r;
+        coCount++;
+      }
+    }
+  }
+  const avgCo = coCount > 0 ? coSum / coCount : 0.5;
+
+  const multiplier = teamTokens.length;
+  const score = (avgSy + avgCo) * multiplier;
+
+  return { sy: avgSy, co: avgCo, score, syCount, coCount, multiplier };
+}
+
+function updateWinChance() {
+  const b = board();
+  const blueTokens = b.tokens.filter(t => t.team === 'blue');
+  const redTokens = b.tokens.filter(t => t.team === 'red');
+
+  if (!blueTokens.length || !redTokens.length) {
+    els.winPrediction.innerHTML = '<div class="wp-empty" style="color:#64748b;font-size:11px;text-align:center;padding:4px 0">Add heroes to both teams.</div>';
+    return;
+  }
+
+  const blueStats = getTeamStats(blueTokens, redTokens);
+  const redStats = getTeamStats(redTokens, blueTokens);
+
+  const total = blueStats.score + redStats.score;
+  const blueWin = total > 0 ? (blueStats.score / total) * 100 : 50;
+  const redWin = 100 - blueWin;
+
+  els.winPrediction.innerHTML = `
+    <div class="wp-bar">
+      <div class="wp-blue" style="width: ${blueWin}%"></div>
+      <div class="wp-red" style="width: ${redWin}%"></div>
+    </div>
+    <div class="wp-labels">
+      <span class="wp-label-blue">${blueWin.toFixed(1)}%</span>
+      <span class="wp-label-red">${redWin.toFixed(1)}%</span>
+    </div>
+    <div class="wp-details" style="margin-top:4px">
+      <span title="Average Synergy">Sy: ${(blueStats.sy*100).toFixed(0)}% (x${blueStats.multiplier})</span>
+      <span title="Average Synergy">Sy: ${(redStats.sy*100).toFixed(0)}% (x${redStats.multiplier})</span>
+    </div>
+    <div class="wp-details">
+      <span title="Average Counter">Co: ${(blueStats.co*100).toFixed(0)}%</span>
+      <span title="Average Counter">Co: ${(redStats.co*100).toFixed(0)}%</span>
+    </div>
+  `;
+}
+
 /* ---- CSV loading ---- */
 function updateMatchupStatus(loading) {
   const el = els.matchupStatus;
@@ -1033,6 +1134,7 @@ async function handleCsvFiles(files) {
   heroKeyCache.clear();
   updateMatchupStatus();
   renderCompare();
+  updateWinChance();
   if (loaded) toast('Matchup data loaded');
   else toast('No valid CSV found');
 }
@@ -1053,6 +1155,7 @@ async function autoLoadMatchups() {
   heroKeyCache.clear();
   updateMatchupStatus();
   renderCompare();
+  updateWinChance();
 }
 
 els.matchupLoadBtn.addEventListener('click', () => els.matchupFiles.click());
