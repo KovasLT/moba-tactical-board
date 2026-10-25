@@ -4,4 +4,4 @@ This is the community tool to help Honor of Kings community teams to prepare tac
 More information is available on our discord page:
 https://discord.gg/DfW5kPKsv5
 
-Counters and Synergies are gathered from publicly available data of 2025-07 -- 2026-07 pro teams matches. Some deviation might appear do to patches. At that time Pei, Chicha and Guan Yu were dominating in the META.
+**Counters and Synergies** are gathered from publicly available data from late 2025 up to 2026-10-25 pro teams matches. Depending on the hero, not all of it's matches might have been available at that time. Some deviation might appear do to patches. For instance, during first data gathering Pei, Chicha and Guan Yu were dominating in the META. During last patch, Wang Wei and Dunshan were added to the game. Also, Global and Chinese servers have slightly different METAs.
