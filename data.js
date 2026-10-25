@@ -122,6 +122,5 @@ window.HEROES = [
 ];
 
 window.MAPS = [
-  { id: "hok", name: "Honor of Kings", img: "MAPS/hok.png" },
-  { id: "hok-jpg", name: "Honor of Kings (JPG)", img: "MAPS/hok.jpg" }
+  { id: "hok", name: "Honor of Kings", img: "MAPS/hok.png" }
 ];
