@@ -102,6 +102,7 @@ window.HEROES = [
   { id: "ukyo-tachibana", name: "Ukyo Tachibana", role: "", img: "HEROES/Ukyo_Tachibana_Icon.webp" },
   { id: "umbrosa", name: "Umbrosa", role: "", img: "HEROES/Umbrosa_Icon.webp" },
   { id: "wang-wei", name: "Wang Wei", role: "", img: "HEROES/Wang_Wei.png" },
+  { id: "wang-zhaojun", name: "Wang Zhaojun (Frost)", role: "", img: "HEROES/Wang_Zhaojun_Icon.webp" },
   { id: "wukong", name: "Wukong", role: "", img: "HEROES/Wukong_Icon.webp" },
   { id: "wuyan", name: "Wuyan", role: "", img: "HEROES/Wuyan_Icon.webp" },
   { id: "xiang-yu", name: "Xiang Yu", role: "", img: "HEROES/Xiang_Yu_Icon.webp" },
