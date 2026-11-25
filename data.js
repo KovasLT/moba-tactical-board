@@ -91,7 +91,7 @@ window.HEROES = [
   { id: "nezha", name: "Nezha", role: "", img: "HEROES/Nezha_Icon.webp" },
   { id: "nuwa", name: "Nuwa", role: "", img: "HEROES/Nuwa_Icon.webp" },
   { id: "pei", name: "Pei", role: "", img: "HEROES/Pei_Icon.webp" },
-  { id: "prince-of-lanling", name: "Prince of Lanling", role: "", img: "HEROES/Prince_of_Lanling_Icon.webp" },
+  { id: "prince-of-lanling", name: "Gao Changgong", role: "", img: "HEROES/Prince_of_Lanling_Icon.webp" },
   { id: "sakeer", name: "Sakeer", role: "", img: "HEROES/Sakeer_Icon.webp" },
   { id: "shangguan", name: "Shangguan", role: "", img: "HEROES/Shangguan_Icon.webp" },
   { id: "shi", name: "Shi", role: "", img: "HEROES/Shi_Icon.webp" },
